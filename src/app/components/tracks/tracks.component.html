@@ -1,0 +1,71 @@
+<div class="main" *ngIf="!isPlayerMaximized">
+
+  <!-- This is the header of the player with application name -->
+
+    <mat-toolbar color="primary" fxLayoutAlign = "center center" class="main-toolbar">
+      <span>Soch Player</span>
+    </mat-toolbar>
+
+    <!-- This is the list view of all the tracks -->
+  
+    <div class="content">  
+      <h2 mat-header>Songs</h2>
+      <mat-list color="primary" class="tracks-list">
+        <mat-list-item class="cursor-pointer" *ngFor="let file of audioService.files; let i = index" (click)="openFile(file, i)">
+          <img mat-list-icon class="tile-image" [src] = "file.image">
+          <h4 mat-line>{{ file.name }}</h4>
+          <h5 mat-line>by {{ file.artist }}</h5>
+          <mat-icon color="primary" *ngIf="currentFile.index === i && !state?.error">volume_up</mat-icon>
+          <h6 *ngIf="currentFile.index === i && state?.error">ERROR</h6>
+          <mat-divider></mat-divider>
+        </mat-list-item>
+      </mat-list>
+    </div>
+</div>
+
+<!-- This is the player toolbar which can be opened in two views (List view and Maximized view) -->
+
+<div fxLayoutAlign = "center start" [ngClass]="isPlayerMaximized ? 'track-player' :'track-footer'">
+  <span class="track-minimize cursor-pointer" *ngIf="currentFile?.file && isPlayerMaximized"><mat-icon (click) = "maximizePlayer()">keyboard_arrow_down</mat-icon></span>
+
+  <!-- This container contains track details in maximized view -->
+
+  <div *ngIf="isPlayerMaximized">
+    <div class="logo">
+      <img [src] = "currentFile?.file.image">
+      <div class="track-details">{{currentFile?.file.name}}</div>
+      <div>by {{currentFile?.file.artist}}</div>
+    </div>
+  </div>
+
+  <!-- This container is the player toolbar whose view can be toggled -->
+  
+  <mat-toolbar color="primary" [ngClass]="isPlayerMaximized ? 'track-player-main' :'track-footer'">
+    <mat-toolbar-row fxLayout>
+       {{ state?.displayCurrentTime }}
+       <mat-slider class="time-slider" min="0" [max]="state?.duration" step="1" [value]="state?.currentTime" (input)="onSliderChangeEnd($event)" [disabled]="state?.error || currentFile.index === undefined"></mat-slider>
+       {{ state?.displayDuration }}
+       <span class="track-maximize cursor-pointer" *ngIf="currentFile?.file && !isPlayerMaximized"><mat-icon (click) = "maximizePlayer()">keyboard_arrow_up</mat-icon></span>
+    </mat-toolbar-row>
+
+    <mat-toolbar-row class="track-action-bar">
+      <button mat-button (click)="previous()">
+        <mat-icon mat-list-icon>skip_previous</mat-icon>
+      </button>
+
+      <button mat-button (click)="audioService.play()" [disabled]="state?.error" *ngIf="!state?.playing">
+        <mat-icon mat-list-icon>play_circle_filled</mat-icon>
+      </button>
+
+      <button mat-button (click)="audioService.pause()" *ngIf="state?.playing">
+        <mat-icon mat-list-icon>pause</mat-icon>
+      </button>
+
+      <button  mat-button (click)="next()">
+        <mat-icon mat-list-icon>skip_next</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+</div>
+  
+  
